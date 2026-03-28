@@ -116,8 +116,11 @@
             <div class="page" id="companiesPage">
                 <div class="content-card">
                     <h2>🏢 会员企业管理</h2>
-                    <button class="btn btn-add" onclick="openCompanyModal()">+ 新增企业</button>
-                    <table class="data-table"><thead><tr><th>ID</th><th>企业名称</th><th>行业</th><th>联系人</th><th>会员级别</th><th>操作</th></tr></thead><tbody id="companiesTable"></tbody></table>
+                    <button class="btn btn-add" onclick="openCompanyModal()">+ 新增会员</button>
+                    <table class="data-table">
+                        <thead><tr><th>编号</th><th>单位&公司</th><th>商会职务</th><th>姓名</th><th>单位职务</th><th>深圳地区</th><th>繁昌籍贯</th><th>所属行业</th><th>操作</th></tr></thead>
+                        <tbody id="companiesTable"></tbody>
+                    </table>
                 </div>
             </div>
 
@@ -161,12 +164,23 @@
     <!-- 企业模态框 -->
     <div class="modal" id="companyModal">
         <div class="modal-content">
-            <div class="modal-header"><h3 id="companyModalTitle">新增企业</h3><button class="close-btn" onclick="closeModal('companyModal')">&times;</button></div>
+            <div class="modal-header"><h3 id="companyModalTitle">新增会员</h3><button class="close-btn" onclick="closeModal('companyModal')">&times;</button></div>
             <input type="hidden" id="companyId">
-            <div class="form-group"><label>企业名称 *</label><input type="text" id="companyName"></div>
-            <div class="form-group"><label>行业</label><input type="text" id="companyIndustry"></div>
-            <div class="form-group"><label>联系人</label><input type="text" id="companyContact"></div>
-            <div class="form-group"><label>会员级别</label><select id="companyLevel"><option value="会员">会员</option><option value="副会长">副会长</option><option value="常务副会长">常务副会长</option><option value="执行会长">执行会长</option><option value="会长">会长</option></select></div>
+            <div class="form-row">
+                <div class="form-group"><label>编号</label><input type="text" id="memberNo" placeholder="如 FC01001"></div>
+                <div class="form-group"><label>商会职务</label><select id="chamberPosition"><option value="">请选择</option><option value="会长">会长</option><option value="副会长">副会长</option><option value="常务副会长">常务副会长</option><option value="执行会长">执行会长</option><option value="秘书长">秘书长</option><option value="监事长">监事长</option><option value="常务理事">常务理事</option><option value="理事">理事</option></select></div>
+            </div>
+            <div class="form-group"><label>单位&公司 *</label><input type="text" id="companyName"></div>
+            <div class="form-row">
+                <div class="form-group"><label>姓名</label><input type="text" id="memberName"></div>
+                <div class="form-group"><label>单位职务</label><input type="text" id="companyPosition" placeholder="如 董事长"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>深圳地区</label><input type="text" id="shenzhenDistrict" placeholder="如 南山区"></div>
+                <div class="form-group"><label>繁昌籍贯</label><input type="text" id="jiguang" placeholder="如 三山"></div>
+            </div>
+            <div class="form-group"><label>所属行业</label><input type="text" id="industry"></div>
+            <div class="form-group"><label>联系人</label><input type="text" id="contactPerson"></div>
             <button class="btn-primary" onclick="saveCompany()">保存</button>
         </div>
     </div>
@@ -244,23 +258,52 @@
         // 企业管理
         async function loadCompanies() {
             const data = await (await fetch('/api/companies')).json();
-            document.getElementById('companiesTable').innerHTML = data.length ? data.map(c=>`<tr><td>${c.id}</td><td>${c.name}</td><td>${c.industry||'-'}</td><td>${c.contact_person||'-'}</td><td>${c.member_level||'-'}</td><td><button class="btn btn-sm btn-edit" onclick="editCompany(${c.id})">编辑</button><button class="btn btn-sm btn-delete" onclick="deleteCompany(${c.id})">删除</button></td></tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:#999;">暂无数据</td></tr>';
+            document.getElementById('companiesTable').innerHTML = data.length ? data.map(c=>`<tr><td>${c.member_no||'-'}</td><td>${c.company_name||'-'}</td><td>${c.chamber_position||'-'}</td><td>${c.name||'-'}</td><td>${c.company_position||'-'}</td><td>${c.shenzhen_district||'-'}</td><td>${c.jiguang||'-'}</td><td>${c.industry||'-'}</td><td><button class="btn btn-sm btn-edit" onclick="editCompany(${c.id})">编辑</button><button class="btn btn-sm btn-delete" onclick="deleteCompany(${c.id})">删除</button></td></tr>`).join('') : '<tr><td colspan="9" style="text-align:center;color:#999;">暂无数据</td></tr>';
         }
-        function openCompanyModal() { document.getElementById('companyModal').style.display='flex'; document.getElementById('companyId').value=''; document.getElementById('companyModalTitle').textContent='新增企业'; document.getElementById('companyName').value=''; document.getElementById('companyIndustry').value=''; document.getElementById('companyContact').value=''; document.getElementById('companyLevel').value='会员'; }
+        function openCompanyModal() { 
+            document.getElementById('companyModal').style.display='flex'; 
+            document.getElementById('companyId').value=''; 
+            document.getElementById('companyModalTitle').textContent='新增会员'; 
+            document.getElementById('memberNo').value='';
+            document.getElementById('chamberPosition').value='';
+            document.getElementById('companyName').value=''; 
+            document.getElementById('memberName').value='';
+            document.getElementById('companyPosition').value='';
+            document.getElementById('shenzhenDistrict').value='';
+            document.getElementById('jiguang').value='';
+            document.getElementById('industry').value=''; 
+            document.getElementById('contactPerson').value='';
+        }
         async function editCompany(id) {
-    document.getElementById('companyModal').style.display='flex';
-    document.getElementById('companyId').value=id;
-    document.getElementById('companyModalTitle').textContent='编辑企业';
-    const res = await fetch(`/api/companies/${id}`);
-    const data = await res.json();
-    document.getElementById('companyName').value = data.name || '';
-    document.getElementById('companyIndustry').value = data.industry || '';
-    document.getElementById('companyContact').value = data.contact_person || '';
-    document.getElementById('companyLevel').value = data.member_level || '会员';
-}
+            document.getElementById('companyModal').style.display='flex';
+            document.getElementById('companyId').value=id;
+            document.getElementById('companyModalTitle').textContent='编辑会员';
+            const res = await fetch(`/api/companies/${id}`);
+            const data = await res.json();
+            document.getElementById('memberNo').value = data.member_no || '';
+            document.getElementById('chamberPosition').value = data.chamber_position || '';
+            document.getElementById('companyName').value = data.company_name || '';
+            document.getElementById('memberName').value = data.name || '';
+            document.getElementById('companyPosition').value = data.company_position || '';
+            document.getElementById('shenzhenDistrict').value = data.shenzhen_district || '';
+            document.getElementById('jiguang').value = data.jiguang || '';
+            document.getElementById('industry').value = data.industry || '';
+            document.getElementById('contactPerson').value = data.contact_person || '';
+        }
         async function saveCompany() {
             const id = document.getElementById('companyId').value;
-            const data = {name:document.getElementById('companyName').value,industry:document.getElementById('companyIndustry').value,contact_person:document.getElementById('companyContact').value,member_level:document.getElementById('companyLevel').value};
+            const data = {
+                member_no: document.getElementById('memberNo').value,
+                chamber_position: document.getElementById('chamberPosition').value,
+                company_name: document.getElementById('companyName').value,
+                name: document.getElementById('memberName').value,
+                company_position: document.getElementById('companyPosition').value,
+                shenzhen_district: document.getElementById('shenzhenDistrict').value,
+                jiguang: document.getElementById('jiguang').value,
+                industry: document.getElementById('industry').value,
+                contact_person: document.getElementById('contactPerson').value,
+                member_level: document.getElementById('companyLevel').value
+            };
             await fetch(id ? `/api/companies/${id}` : '/api/companies', {method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
             closeModal('companyModal'); loadCompanies();
         }
