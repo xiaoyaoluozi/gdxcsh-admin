@@ -220,7 +220,19 @@
             document.getElementById('eventsTable').innerHTML = data.length ? data.map(e=>`<tr><td>${e.id}</td><td>${e.title}</td><td>${e.location||'-'}</td><td>${(e.start_time||'').replace('T',' ')||'-'}</td><td><span class="status-badge status-${e.status||'pending'}">${e.status||'pending'}</span></td><td><button class="btn btn-sm btn-edit" onclick="editEvent(${e.id})">编辑</button><button class="btn btn-sm btn-delete" onclick="deleteEvent(${e.id})">删除</button></td></tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:#999;">暂无数据</td></tr>';
         }
         function openEventModal() { document.getElementById('eventModal').style.display='flex'; document.getElementById('eventId').value=''; document.getElementById('eventModalTitle').textContent='新增活动'; document.getElementById('eventTitle').value=''; document.getElementById('eventLocation').value=''; document.getElementById('eventStartTime').value=''; document.getElementById('eventOrganizer').value=''; document.getElementById('eventStatus').value='upcoming'; document.getElementById('eventDesc').value=''; }
-        function editEvent(id) { document.getElementById('eventModal').style.display='flex'; document.getElementById('eventId').value=id; document.getElementById('eventModalTitle').textContent='编辑活动'; }
+        async function editEvent(id) {
+    document.getElementById('eventModal').style.display='flex';
+    document.getElementById('eventId').value=id;
+    document.getElementById('eventModalTitle').textContent='编辑活动';
+    const res = await fetch(`/api/events/${id}`);
+    const data = await res.json();
+    document.getElementById('eventTitle').value = data.title || '';
+    document.getElementById('eventLocation').value = data.location || '';
+    document.getElementById('eventStartTime').value = (data.start_time || '').replace(' ','T').slice(0,16);
+    document.getElementById('eventOrganizer').value = data.organizer || '';
+    document.getElementById('eventStatus').value = data.status || 'upcoming';
+    document.getElementById('eventDesc').value = data.description || '';
+}
         async function saveEvent() {
             const id = document.getElementById('eventId').value;
             const data = {title:document.getElementById('eventTitle').value,description:document.getElementById('eventDesc').value,location:document.getElementById('eventLocation').value,start_time:document.getElementById('eventStartTime').value,organizer:document.getElementById('eventOrganizer').value,status:document.getElementById('eventStatus').value};
@@ -235,7 +247,17 @@
             document.getElementById('companiesTable').innerHTML = data.length ? data.map(c=>`<tr><td>${c.id}</td><td>${c.name}</td><td>${c.industry||'-'}</td><td>${c.contact_person||'-'}</td><td>${c.member_level||'-'}</td><td><button class="btn btn-sm btn-edit" onclick="editCompany(${c.id})">编辑</button><button class="btn btn-sm btn-delete" onclick="deleteCompany(${c.id})">删除</button></td></tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:#999;">暂无数据</td></tr>';
         }
         function openCompanyModal() { document.getElementById('companyModal').style.display='flex'; document.getElementById('companyId').value=''; document.getElementById('companyModalTitle').textContent='新增企业'; document.getElementById('companyName').value=''; document.getElementById('companyIndustry').value=''; document.getElementById('companyContact').value=''; document.getElementById('companyLevel').value='会员'; }
-        function editCompany(id) { document.getElementById('companyModal').style.display='flex'; document.getElementById('companyId').value=id; document.getElementById('companyModalTitle').textContent='编辑企业'; }
+        async function editCompany(id) {
+    document.getElementById('companyModal').style.display='flex';
+    document.getElementById('companyId').value=id;
+    document.getElementById('companyModalTitle').textContent='编辑企业';
+    const res = await fetch(`/api/companies/${id}`);
+    const data = await res.json();
+    document.getElementById('companyName').value = data.name || '';
+    document.getElementById('companyIndustry').value = data.industry || '';
+    document.getElementById('companyContact').value = data.contact_person || '';
+    document.getElementById('companyLevel').value = data.member_level || '会员';
+}
         async function saveCompany() {
             const id = document.getElementById('companyId').value;
             const data = {name:document.getElementById('companyName').value,industry:document.getElementById('companyIndustry').value,contact_person:document.getElementById('companyContact').value,member_level:document.getElementById('companyLevel').value};

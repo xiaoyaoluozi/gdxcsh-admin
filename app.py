@@ -104,6 +104,17 @@ def update_event(id):
     conn.close()
     return jsonify({'success': True})
 
+@app.route('/api/events/<int:id>', methods=['GET'])
+def get_event(id):
+    conn = get_db()
+    c = conn.cursor()
+    c.execute('SELECT * FROM events WHERE id=?', (id,))
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return jsonify(dict(row))
+    return jsonify({'error': 'Not found'}), 404
+
 @app.route('/api/events/<int:id>', methods=['DELETE'])
 def delete_event(id):
     conn = get_db()
@@ -144,6 +155,17 @@ def update_company(id):
     conn.commit()
     conn.close()
     return jsonify({'success': True})
+
+@app.route('/api/companies/<int:id>', methods=['GET'])
+def get_company(id):
+    conn = get_db()
+    c = conn.cursor()
+    c.execute('SELECT * FROM companies WHERE id=?', (id,))
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return jsonify(dict(row))
+    return jsonify({'error': 'Not found'}), 404
 
 @app.route('/api/companies/<int:id>', methods=['DELETE'])
 def delete_company(id):
