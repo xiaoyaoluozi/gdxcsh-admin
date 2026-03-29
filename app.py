@@ -138,12 +138,8 @@ def create_company():
     data = request.json
     conn = get_db()
     c = conn.cursor()
-    c.execute('''INSERT INTO companies 
-        (member_no, company_name, chamber_position, name, company_position, shenzhen_district, jiguang, industry, contact_person, member_level) 
-        VALUES (?,?,?,?,?,?,?,?,?,?)''',
-              (data.get('member_no'), data.get('company_name'), data.get('chamber_position'), 
-               data.get('name'), data.get('company_position'), data.get('shenzhen_district'),
-               data.get('jiguang'), data.get('industry'), data.get('contact_person'), data.get('member_level')))
+    c.execute('INSERT INTO companies (name, industry, contact_person, member_level) VALUES (?,?,?,?)',
+              (data.get('name'), data.get('industry'), data.get('contact_person'), data.get('member_level')))
     conn.commit()
     cid = c.lastrowid
     conn.close()
@@ -154,11 +150,8 @@ def update_company(id):
     data = request.json
     conn = get_db()
     c = conn.cursor()
-    c.execute('''UPDATE companies SET member_no=?, company_name=?, chamber_position=?, name=?, 
-        company_position=?, shenzhen_district=?, jiguang=?, industry=?, contact_person=?, member_level=? WHERE id=?''',
-              (data.get('member_no'), data.get('company_name'), data.get('chamber_position'),
-               data.get('name'), data.get('company_position'), data.get('shenzhen_district'),
-               data.get('jiguang'), data.get('industry'), data.get('contact_person'), data.get('member_level'), id))
+    c.execute('UPDATE companies SET name=?, industry=?, contact_person=?, member_level=? WHERE id=?',
+              (data.get('name'), data.get('industry'), data.get('contact_person'), data.get('member_level'), id))
     conn.commit()
     conn.close()
     return jsonify({'success': True})
@@ -212,4 +205,4 @@ def index():
     return send_from_directory('/var/www/gdxcsh-admin', 'index.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5001, debug=False)
